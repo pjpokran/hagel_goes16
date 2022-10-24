@@ -1,0 +1,7 @@
+#!/bin/tcsh 
+cd /home/poker/goes16/conus
+foreach hour (13 14 15 16 17)
+foreach min ( 02 07 12 17 22 27 32 37 42 47 52 57 )
+./goes16_conus_visible_sqrt-test1.py 20170526${hour}${min}
+end
+end

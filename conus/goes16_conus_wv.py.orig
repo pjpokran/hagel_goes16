@@ -1,0 +1,203 @@
+#!/home/poker/miniconda3/bin/python
+
+import netCDF4
+import numpy as np
+import os.path
+import sys
+
+band="09"
+filechar=['AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM',
+          'AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
+          'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM',
+          'BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ']
+
+#print(filechar[1])
+
+prod_id = "TIRC"
+#dt="201703051957"
+dt=sys.argv[1]
+
+#f = netCDF4.Dataset("/weather/data/goes16/TIRC/"+band+"/"+dt+"_PAA.nc")
+f = netCDF4.Dataset("/weather/data/goes16/"+prod_id+"/"+band+"/"+dt+"_PAA.nc")
+a = np.zeros(shape=(f.product_rows,f.product_columns))
+xa= np.zeros(shape=(f.product_columns))
+ya= np.zeros(shape=(f.product_rows))
+
+
+print(f)
+
+data_var = f.variables['Sectorized_CMI']
+a[0:f.product_tile_height,0:f.product_tile_width] = data_var[:]
+#data_var2 = g.variables['Sectorized_CMI']
+
+print(data_var)
+
+x = f.variables['x'][:]
+y = f.variables['y'][:]
+xa[f.tile_column_offset:f.tile_column_offset+f.product_tile_width] = x[:]
+ya[f.tile_row_offset:f.tile_row_offset+f.product_tile_height] = y[:]
+
+if f.number_product_tiles > 1:
+# this goes from 1 to number of tiles - 1
+    for i in range(1,f.number_product_tiles):
+#    print(filechar[i])
+        if os.path.isfile("/weather/data/goes16/TIRC/"+band+"/"+dt+"_P"+filechar[i]+".nc"):
+            g = netCDF4.Dataset("/weather/data/goes16/TIRC/"+band+"/"+dt+"_P"+filechar[i]+".nc")
+#        print(g)
+            data_var2 = g.variables['Sectorized_CMI']
+            a[g.tile_row_offset:g.tile_row_offset+g.product_tile_height,g.tile_column_offset:g.tile_column_offset+g.product_tile_width]=data_var2[:]
+            x = g.variables['x'][:]
+            y = g.variables['y'][:]
+            xa[g.tile_column_offset:g.tile_column_offset+g.product_tile_width] = x[:]
+            ya[g.tile_row_offset:g.tile_row_offset+g.product_tile_height] = y[:]
+            g.close
+
+
+#a[g.tile_column_offset:g.tile_column_offset+g.product_tile_width,g.tile_row_offset:g.tile_row_offset+g.product_tile_height]=data_var[:]
+    a[g.tile_row_offset:g.tile_row_offset+g.product_tile_height,g.tile_column_offset:g.tile_column_offset+g.product_tile_width]=data_var2[:]
+#print(a)
+
+print("prior to swap")
+print("a max")
+print(np.amax(a))
+print("a min")
+print(np.amin(a))
+
+
+# swap zeros for ones
+a[a==0.] = 500.
+#
+#print(" ")
+#print("after swap")
+#print("a max")
+#print(np.amax(a))
+#print("a min")
+#print(np.amin(a))
+
+proj_var = f.variables[data_var.grid_mapping]
+
+import cartopy.crs as ccrs
+
+# Create a Globe specifying a spherical earth with the correct radius
+globe = ccrs.Globe(ellipse='sphere', semimajor_axis=proj_var.semi_major,
+                   semiminor_axis=proj_var.semi_minor)
+
+proj = ccrs.LambertConformal(central_longitude=proj_var.longitude_of_central_meridian,
+                             central_latitude=proj_var.latitude_of_projection_origin,
+                             standard_parallels=[proj_var.standard_parallel],
+                             globe=globe)
+
+import matplotlib.pyplot as plt
+
+image_rows=f.product_rows
+image_columns=f.product_columns
+image_crop_top=250
+image_crop_bottom=-3500
+image_crop_left=2350
+image_crop_right=-2350
+
+image_size_y=(image_rows+image_crop_bottom-image_crop_top)
+image_size_x=(image_columns+image_crop_right-image_crop_left)
+
+print(image_size_x, image_size_y)
+
+image_size_x=float(image_size_x)/100.
+image_size_y=float(image_size_y)/100.
+
+# Create a new figure with size 10" by 10"
+fig = plt.figure(figsize=(image_size_x,image_size_y),dpi=100.)
+fig2 = plt.figure(figsize=(image_columns/400.,image_rows/400.))
+
+# Put a single axes on this figure; set the projection for the axes to be our
+# Lambert conformal projection
+ax = fig.add_subplot(1, 1, 1, projection=proj)
+ax2 = fig2.add_subplot(1, 1, 1, projection=proj)
+
+
+# Define the supposed wv color map
+
+#from pylab import *
+
+cdict = {'red': ((0.0, 1.0, 1.0),
+                 (0.29, 1.00, 1.00),
+                 (0.61, 0.0, 0.0),
+                 (1.0, 0.0, 0.0)),
+         'green': ((0.0, 1.0, 1.0),
+                 (0.29, 1.00, 1.00),
+                 (0.61, 0.0, 0.0),
+                 (1.0, 0.0, 0.0)),
+         'blue': ((0.0, 1.0, 1.0),
+                 (0.29, 1.00, 1.00),
+                 (0.61, 0.0, 0.0),
+                 (1.0, 0.0, 0.0))}
+
+import matplotlib as mpl
+
+my_cmap = mpl.colors.LinearSegmentedColormap('my_colormap',cdict,256)
+
+
+# Plot the data using a simple greyscale colormap (with black for low values);
+# set the colormap to extend over a range of values from 140 to 255.
+# Note, we save the image returned by imshow for later...
+#im = ax.imshow(data_var[:], extent=(x[0], x[-1], y[0], y[-1]), origin='upper',
+#               cmap='Greys_r', norm=plt.Normalize(0, 256))
+#im = ax.imshow(data_var[:], extent=(x[0], x[-1], y[0], y[-1]), origin='upper',
+#im = ax.imshow(a[:], extent=(xa[0], xa[-1], ya[-1], ya[0]), origin='upper',
+#               cmap='Greys_r')
+#im = ax.imshow(a[250:-3000,2000:-2000], extent=(xa[2000],xa[-2000],ya[-3000],ya[250]), origin='upper',cmap='Greys_r')
+im = ax.imshow(a[image_crop_top:image_crop_bottom,image_crop_left:image_crop_right], extent=(xa[image_crop_left],xa[image_crop_right],ya[image_crop_bottom],ya[image_crop_top]), origin='upper', cmap=my_cmap, vmin=162., vmax=330.0)
+#im = ax.imshow(data_var[:], extent=(x[0], x[-1], y[0], y[-1]), origin='upper')
+
+im = ax2.imshow(a[:], extent=(xa[1],xa[-1],ya[-1],ya[1]), origin='upper', cmap=my_cmap, vmin=162., vmax=330.0)
+
+ax.coastlines(resolution='50m', color='green')
+ax2.coastlines(resolution='50m', color='green')
+
+import cartopy.feature as cfeat
+
+# Add country borders with a thick line.
+#ax.add_feature(cfeat.BORDERS, linewidth='1', edgecolor='green')
+#ax2.add_feature(cfeat.BORDERS, linewidth='1', edgecolor='green')
+
+# Set up a feature for the state/province lines. Tell cartopy not to fill in the polygons
+state_boundaries = cfeat.NaturalEarthFeature(category='cultural',
+                                             name='admin_1_states_provinces_lakes',
+                                             scale='50m', facecolor='none', edgecolor='red')
+
+# Add the feature with dotted lines, denoted by ':'
+ax.add_feature(state_boundaries, linestyle=':')
+ax2.add_feature(state_boundaries, linestyle=':')
+
+# Redisplay modified figure
+#fig
+#fig2
+
+import datetime
+
+time_var = f.start_date_time
+
+#2017065200400
+
+jyr = time_var[0:4]
+jday = time_var[4:7]
+print(jday)
+
+date = datetime.datetime(int(jyr), 1, 1) + datetime.timedelta(int(jday)-1)
+
+time_string = 'Valid %s '%date.strftime('%Y %b %d')+time_var[7:9]+":"+time_var[9:11]+":"+time_var[11:13]+" GMT"
+print(time_string)
+
+#2017/065 20:04:00:30
+text = ax.text(0.50, 0.01, time_string,
+    horizontalalignment='center', transform = ax.transAxes,
+    color='yellow', fontsize='large', weight='bold')
+
+text = ax2.text(0.50, 0.01, time_string,
+    horizontalalignment='center', transform = ax2.transAxes,
+    color='yellow', fontsize='large', weight='bold')
+
+filename1=dt+"_1.png"
+filename2=dt+"_2.png"
+
+fig.savefig(filename1, bbox_inches='tight')
+fig2.savefig(filename2, bbox_inches='tight')
