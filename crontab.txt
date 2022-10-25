@@ -1,0 +1,23 @@
+#4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conus/run_vis.sh
+#4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conus/run_vis_sqrt.sh
+4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conus/run_ir.sh
+4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conus/run_ir13.sh
+4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_ir.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_ircm.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_cirrus.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_snowice.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_cldpartsize.sh
+4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conus/run_wv.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_wv.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_wvl.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc/run_wvh.sh
+### on hera 4,9,14,19,24,29,34,39,44,49,54,59 * * * * /home/poker/goes16/conusc_4panel/run_wv_4panel.sh
+1,6,11,16,21,26,31,36,41,46,51,56 * * * * /home/poker/goes16/conusc/run_RGB.sh
+2,7,12,17,22,27,32,37,42,47,52,57 * * * * /home/poker/goes16/conusc/run_RGB_hist.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldisk/run_vis.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldisk/run_vis_sqrt.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldisk/run_ir.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldiskc/run_ir.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldiskc/run_ircm.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldisk/run_wv.sh
+### on hera 13,28,43,58 * * * * /home/poker/goes16/fulldiskc/run_wv.sh
