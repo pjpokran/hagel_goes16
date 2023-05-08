@@ -1241,7 +1241,7 @@ text38.set_path_effects(outline_effect)
 
 # START IR 
 
-band="14"
+band="13"
 filechar=['AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM',
           'AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ',
           'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM',
@@ -1646,7 +1646,7 @@ jday = time_var[4:7]
 date = datetime.datetime(int(jyr), 1, 1) + datetime.timedelta(int(jday)-1)
 
 #time_string = 'GOES-16 IR (ABI 14) valid %s '%date.strftime('%Y %b %d')+time_var[7:9]+":"+time_var[9:11]+":"+time_var[11:13]+" GMT"
-time_string = 'GOES-16 IR (ABI 14)'
+time_string = 'GOES-16 IR (ABI 13)'
 print(time_string)
 
 #2017/065 20:04:00:30
